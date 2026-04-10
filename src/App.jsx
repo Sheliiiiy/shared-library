@@ -21,6 +21,20 @@ export default function App() {
     image: ""
   });
 
+  const [search, setSearch] = useState("")
+  const [results, setResults] = useState([])
+
+  const searchBooks = async () => {
+    if (!search) return
+
+    const res = await fetch(
+      `https://openlibrary.org/search.json?q=${search}`
+    )
+
+    const data = await res.json()
+    setResults(data.docs.slice(0, 8))
+  }
+
   const addBook = () => {
     if (!form.title.trim()) return;
     setBooks(prev => ({
@@ -65,6 +79,72 @@ export default function App() {
           </button>
         ))}
       </div>
+
+      {/* Search Book */}
+      <div className="mb-6">
+        <input
+          className="p-2 border rounded w-full"
+          placeholder="Search books (Harry Potter, Naruto...)"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <button
+          onClick={searchBooks}
+          className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Search Books
+        </button>
+      </div>
+
+      {/* P2 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {results.map((book, i) => (
+          <div key={i} className="border p-3 rounded">
+            <img
+              src={
+                book.cover_i
+                  ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                  : ""
+              }
+              className="h-40 w-full object-cover mb-2"
+            />
+
+            <h3 className="font-bold text-sm">
+              {book.title}
+            </h3>
+
+            <p className="text-xs text-gray-600">
+              {book.author_name?.[0]}
+            </p>
+
+            <button
+              onClick={() =>
+                setBooks(prev => ({
+                  ...prev,
+                  [activeUser]: [
+                    ...prev[activeUser],
+                    {
+                      id: crypto.randomUUID(),
+                      title: book.title,
+                      author: book.author_name?.[0] || "Unknown",
+                      genre: "API",
+                      image: book.cover_i
+                        ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                        : "",
+                      user: activeUser
+                    }
+                  ]
+                }))
+              }
+              className="mt-2 px-2 py-1 bg-blue-500 text-white text-xs rounded"
+            >
+              Add
+            </button>
+          </div>
+        ))}
+      </div>
+
 
       {/* Add Book */}
       <div className="grid grid-cols-2 gap-2 mb-6">
