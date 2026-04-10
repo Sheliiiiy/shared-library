@@ -24,36 +24,41 @@ export default function BookForm({ onAddBook, activeUser }) {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="mb-6 p-4 border rounded-lg shadow-sm"
+  onSubmit={handleSubmit}
+  className="mb-6 p-4 border rounded-lg shadow-sm"
+>
+  <h2 className="text-lg font-semibold mb-3">
+    ➕ Add Book Manually
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+    
+    <input
+      name="title"
+      className="border p-2 rounded"
+      placeholder="Title"
+    />
+
+    <input
+      name="author"
+      className="border p-2 rounded"
+      placeholder="Author"
+    />
+
+    <input
+      name="genre"
+      className="border p-2 rounded"
+      placeholder="Genre"
+    />
+
+    <button
+      type="submit"
+      className="h-[42px] bg-black text-white rounded px-4 hover:bg-gray-800"
     >
-      <h2 className="text-lg font-semibold mb-3">
-        ➕ Add Book Manually
-      </h2>
+      Add
+    </button>
 
-      <div className="grid md:grid-cols-3 gap-3">
-        <input
-          name="title"
-          className="border p-2 rounded"
-          placeholder="Title"
-        />
-
-        <input
-          name="author"
-          className="border p-2 rounded"
-          placeholder="Author"
-        />
-
-        <input
-          name="genre"
-          className="border p-2 rounded"
-          placeholder="Genre"
-        />
-      </div>
-
-      <button className="mt-3 px-4 py-2 bg-black text-white rounded">
-        Add Book
-      </button>
-    </form>
+  </div>
+</form>
   );
 }

@@ -39,6 +39,9 @@ export default function BookSearch({ onAddBook, activeUser }) {
 
     return (
         <div className="relative mb-6">
+            <h2 className="text-lg font-semibold mb-3">
+                🔍 Search
+            </h2>
             <input
                 className="p-2 border rounded w-full"
                 placeholder="Search books..."
