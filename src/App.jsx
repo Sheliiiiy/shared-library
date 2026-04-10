@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import BookList from "./components/BookList"
 
 // Simple in-browser library app (can later connect to API)
 export default function App() {
@@ -95,24 +96,7 @@ export default function App() {
         </button>
 
         {/* Books Display */}
-        <div>
-          {Object.keys(groupedBooks).map((genre) => (
-            <div key={genre} className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">{genre}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {groupedBooks[genre].map((book, i) => (
-                  <div key={i} className="p-3 border rounded-2xl shadow">
-                    {book.image && (
-                      <img src={book.image} alt={book.title} className="h-40 w-full object-cover mb-2 rounded" />
-                    )}
-                    <h3 className="font-bold">{book.title}</h3>
-                    <p className="text-sm text-gray-600">{book.author}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <BookList books={books} user={activeUser} />
       </div>
     );
   }
