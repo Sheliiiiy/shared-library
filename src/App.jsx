@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react"
+import { useRef, useState, useEffect } from "react"
 import BookList from "./components/BookList"
 
 // Simple in-browser library app (can later connect to API)
 export default function App() {
+  const timeoutRef = useRef(null)
   const [users] = useState(["GG", "VK"]);
   const [activeUser, setActiveUser] = useState("GG");
   const [books, setBooks] = useState(() => {
@@ -11,6 +12,7 @@ export default function App() {
     if (!saved) return { GG: [], VK: [] }
 
     const parsed = JSON.parse(saved)
+
 
     // patch missing ids
     for (const user of ["GG", "VK"]) {
@@ -51,6 +53,10 @@ export default function App() {
     return acc;
   }, {});
 
+  const sortedGenres = Object.keys(groupedBooks).sort(
+    (a, b) => (a === "Unknown" ? 1 : b === "Unknown" ? -1 : 0)
+  )
+
   const deleteBook = (user, id) => {
     setBooks(prev => ({
       ...prev,
@@ -58,24 +64,47 @@ export default function App() {
     }))
   };
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">📚 Online Library</h1>
+    <div className="flex items-start justify-between mb-4">
+      <div>
+        <h1 className="text-3xl font-bold mb-4">📚 Online Library</h1>
 
-      {/* User Switch */}
-      <div className="flex gap-2 mb-6">
-        {users.map((user) => (
-          <button
-            key={user}
-            onClick={() => setActiveUser(user)}
-            className={`px-4 py-2 rounded-2xl shadow ${activeUser === user ? "bg-black text-white" : "bg-gray-200"}`}
-          >
-            {user}
-          </button>
-        ))}
+        <div className="mb-4 text-sm text-gray-600">
+          Currently viewing library for:{" "}
+          <span className="font-semibold text-black">
+            {activeUser}
+          </span>
+        </div>
+
+        {/* User Switch */}
+        <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-full shadow-sm">
+          <span className="text-xs text-gray-500 mr-1">User</span>
+
+          {users.map((user) => {
+            const isActive = activeUser === user;
+
+            return (
+              <button
+                key={user}
+                onClick={() => setActiveUser(user)}
+                className={`
+            px-3 py-1 rounded-full text-xs font-medium transition-all duration-200
+            ${isActive
+                    ? "bg-black text-white shadow"
+                    : "text-gray-600 hover:bg-white"
+                  }
+          `}
+              >
+                {user}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Search Book */}
-      <div className="mb-6">
+      {/* SEARCH + DROPDOWN WRAPPER */}
+      <div className="relative mb-6">
+
         <input
           className="p-2 border rounded w-full"
           placeholder="Search books..."
@@ -83,21 +112,22 @@ export default function App() {
           onChange={(e) => {
             const value = e.target.value
             setSearch(value)
-            searchBooks(value)
+
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+
+            timeoutRef.current = setTimeout(() => {
+              searchBooks(value)
+            }, 400)
           }}
         />
 
-      </div>
-
-      {/* P2 */}
-      {results.length > 0 && (
-        <div className="relative">
-          <div className="absolute z-10 w-full bg-white border rounded shadow-lg max-h-80 overflow-auto"></div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {/* DROPDOWN MUST BE INSIDE SAME DIV */}
+        {results.length > 0 && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-[99999] bg-white border rounded shadow-lg max-h-80 overflow-auto">
             {results.map((book, i) => (
               <div
                 key={i}
-                className="p-2 hover:bg-gray-100 cursor-pointer flex gap-2"
+                className="p-2 hover:bg-gray-100 cursor-pointer flex gap-3 items-center"
                 onClick={() => {
                   setBooks(prev => ({
                     ...prev,
@@ -116,7 +146,6 @@ export default function App() {
                     ]
                   }))
 
-                  // CLEAR EVERYTHING AFTER SELECT
                   setSearch("")
                   setResults([])
                 }}
@@ -127,20 +156,31 @@ export default function App() {
                       ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
                       : ""
                   }
-                  className="h-10 w-8 object-cover"
+                  className="h-12 w-10 object-cover rounded"
                 />
+
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium line-clamp-1">
+                    {book.title}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {book.author_name?.[0] || "Unknown author"}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Books Display */}
-      <BookList
-        books={books}
-        user={activeUser}
-        onDelete={deleteBook}
-      />
-    </div>
+      <div className="relative z-0">
+        <BookList
+          books={books}
+          user={activeUser}
+          onDelete={deleteBook}
+        />
+      </div>
+    </div >
   );
 }
