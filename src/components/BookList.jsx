@@ -1,6 +1,6 @@
 import BookCard from "./BookCard"
 
-export default function BookList({ books, user }) {
+export default function BookList({ books, user, onDelete }) {
   const userBooks = books[user]
 
   const grouped = userBooks.reduce((acc, book) => {

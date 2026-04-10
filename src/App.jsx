@@ -43,60 +43,70 @@ export default function App() {
     return acc;
   }, {});
 
-    return (
-      <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">📚 Online Library</h1>
+  const deleteBook = (user, id) => {
+    setBooks(prev => ({
+      ...prev,
+      [user]: prev[user].filter(book => book.id !== id)
+    }))
+  };
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">📚 Online Library</h1>
 
-        {/* User Switch */}
-        <div className="flex gap-2 mb-6">
-          {users.map((user) => (
-            <button
-              key={user}
-              onClick={() => setActiveUser(user)}
-              className={`px-4 py-2 rounded-2xl shadow ${activeUser === user ? "bg-black text-white" : "bg-gray-200"}`}
-            >
-              {user}
-            </button>
-          ))}
-        </div>
-
-        {/* Add Book */}
-        <div className="grid grid-cols-2 gap-2 mb-6">
-          <input
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="p-2 border rounded"
-          />
-          <input
-            placeholder="Author"
-            value={form.author}
-            onChange={(e) => setForm({ ...form, author: e.target.value })}
-            className="p-2 border rounded"
-          />
-          <input
-            placeholder="Genre"
-            value={form.genre}
-            onChange={(e) => setForm({ ...form, genre: e.target.value })}
-            className="p-2 border rounded"
-          />
-          <input
-            placeholder="Image URL"
-            value={form.image}
-            onChange={(e) => setForm({ ...form, image: e.target.value })}
-            className="p-2 border rounded"
-          />
-        </div>
-
-        <button
-          onClick={addBook}
-          className="mb-6 px-4 py-2 bg-blue-500 text-white rounded-2xl shadow"
-        >
-          Add Book
-        </button>
-
-        {/* Books Display */}
-        <BookList books={books} user={activeUser} />
+      {/* User Switch */}
+      <div className="flex gap-2 mb-6">
+        {users.map((user) => (
+          <button
+            key={user}
+            onClick={() => setActiveUser(user)}
+            className={`px-4 py-2 rounded-2xl shadow ${activeUser === user ? "bg-black text-white" : "bg-gray-200"}`}
+          >
+            {user}
+          </button>
+        ))}
       </div>
-    );
-  }
+
+      {/* Add Book */}
+      <div className="grid grid-cols-2 gap-2 mb-6">
+        <input
+          placeholder="Title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="p-2 border rounded"
+        />
+        <input
+          placeholder="Author"
+          value={form.author}
+          onChange={(e) => setForm({ ...form, author: e.target.value })}
+          className="p-2 border rounded"
+        />
+        <input
+          placeholder="Genre"
+          value={form.genre}
+          onChange={(e) => setForm({ ...form, genre: e.target.value })}
+          className="p-2 border rounded"
+        />
+        <input
+          placeholder="Image URL"
+          value={form.image}
+          onChange={(e) => setForm({ ...form, image: e.target.value })}
+          className="p-2 border rounded"
+        />
+      </div>
+
+      <button
+        onClick={addBook}
+        className="mb-6 px-4 py-2 bg-blue-500 text-white rounded-2xl shadow"
+      >
+        Add Book
+      </button>
+
+      {/* Books Display */}
+      <BookList
+        books={books}
+        user={activeUser}
+        onDelete={deleteBook}
+      />
+    </div>
+  );
+}
