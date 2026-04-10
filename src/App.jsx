@@ -2,56 +2,53 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import BookSearch from "./components/BookSearch";
 import BookList from "./components/BookList";
+import BookForm from "./components/AddBookForm";
 
 export default function App() {
+  const STORAGE_KEY = "book-library";
+
   const [users] = useState(["GG", "VK"]);
   const [activeUser, setActiveUser] = useState("GG");
 
   const [books, setBooks] = useState(() => {
-    const saved = localStorage.getItem("books");
-    if (!saved) return { GG: [], VK: [] };
-
-    const parsed = JSON.parse(saved);
-
-    for (const user of ["GG", "VK"]) {
-      parsed[user] = parsed[user].map((book) => ({
-        ...book,
-        id: book.id || crypto.randomUUID(),
-      }));
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
-
-    return parsed;
   });
 
   useEffect(() => {
-    localStorage.setItem("books", JSON.stringify(books));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
   }, [books]);
 
-  const deleteBook = (user, id) => {
-    setBooks((prev) => ({
-      ...prev,
-      [user]: prev[user].filter((book) => book.id !== id),
-    }));
+  const deleteBook = (id) => {
+    setBooks((prev) => prev.filter((book) => book.id !== id));
   };
 
   const addBook = (book) => {
-    setBooks((prev) => ({
+    setBooks((prev) => [
       ...prev,
-      [activeUser]: [...prev[activeUser], book],
-    }));
+      {
+        ...book,
+        user: activeUser,
+        id: book.id || crypto.randomUUID(),
+      },
+    ]);
   };
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
 
-      {/* HEADER */}
-      <Header users={users} activeUser={activeUser} setActiveUser={setActiveUser}/>
+      <Header users={users} activeUser={activeUser} setActiveUser={setActiveUser} />
 
-      {/* SEARCH */}
+      <BookForm onAddBook={addBook} activeUser={activeUser} />
+
       <BookSearch activeUser={activeUser} onAddBook={addBook} />
 
-      {/* LIST */}
       <BookList books={books} user={activeUser} onDelete={deleteBook} />
+
     </div>
   );
 }

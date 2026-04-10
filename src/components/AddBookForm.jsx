@@ -1,43 +1,59 @@
-import { useState } from "react"
-import { addBook } from "../storage/books"
-
-export default function AddBookForm({ onAdd }) {
-  const [title, setTitle] = useState("")
-  const [author, setAuthor] = useState("")
-  const [genre, setGenre] = useState("")
-  const [image, setImage] = useState("")
-
+export default function BookForm({ onAddBook, activeUser }) {
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const newBook = {
+    const form = new FormData(e.target);
+
+    const title = form.get("title");
+    const author = form.get("author");
+    const genre = form.get("genre");
+
+    if (!title) return;
+
+    onAddBook({
       id: crypto.randomUUID(),
       title,
-      author,
-      genre,
-      image,
-      user: "GG"
-    }
+      author: author || "Unknown",
+      genre: genre || "Unknown",
+      image: "",
+      user: activeUser, // IMPORTANT in flat structure
+    });
 
-    addBook(newBook)
-    onAdd()
-
-    setTitle("")
-    setAuthor("")
-    setGenre("")
-    setImage("")
-  }
+    e.target.reset();
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add Book</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="mb-6 p-4 border rounded-lg shadow-sm"
+    >
+      <h2 className="text-lg font-semibold mb-3">
+        ➕ Add Book Manually
+      </h2>
 
-      <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <input placeholder="Author" value={author} onChange={(e) => setAuthor(e.target.value)} />
-      <input placeholder="Genre" value={genre} onChange={(e) => setGenre(e.target.value)} />
-      <input placeholder="Image URL" value={image} onChange={(e) => setImage(e.target.value)} />
+      <div className="grid md:grid-cols-3 gap-3">
+        <input
+          name="title"
+          className="border p-2 rounded"
+          placeholder="Title"
+        />
 
-      <button type="submit">Add</button>
+        <input
+          name="author"
+          className="border p-2 rounded"
+          placeholder="Author"
+        />
+
+        <input
+          name="genre"
+          className="border p-2 rounded"
+          placeholder="Genre"
+        />
+      </div>
+
+      <button className="mt-3 px-4 py-2 bg-black text-white rounded">
+        Add Book
+      </button>
     </form>
-  )
+  );
 }
