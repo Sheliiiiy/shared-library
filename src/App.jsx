@@ -7,19 +7,25 @@ export default function App() {
   const [activeUser, setActiveUser] = useState("GG");
   const [books, setBooks] = useState(() => {
     const saved = localStorage.getItem("books")
-    return saved ? JSON.parse(saved) : { GG: [], VK: [] }
+
+    if (!saved) return { GG: [], VK: [] }
+
+    const parsed = JSON.parse(saved)
+
+    // patch missing ids
+    for (const user of ["GG", "VK"]) {
+      parsed[user] = parsed[user].map(book => ({
+        ...book,
+        id: book.id || crypto.randomUUID()
+      }))
+    }
+
+    return parsed
   });
 
   useEffect(() => {
     localStorage.setItem("books", JSON.stringify(books))
   }, [books])
-
-  const [form, setForm] = useState({
-    title: "",
-    author: "",
-    genre: "",
-    image: ""
-  });
 
   const [search, setSearch] = useState("")
   const [results, setResults] = useState([])
@@ -34,21 +40,6 @@ export default function App() {
     const data = await res.json()
     setResults(data.docs.slice(0, 8))
   }
-
-  const addBook = () => {
-    if (!form.title.trim()) return;
-    setBooks(prev => ({
-      ...prev,
-      [activeUser]: [
-        ...prev[activeUser],
-        {
-          ...form,
-          id: crypto.randomUUID()
-        }
-      ]
-    }));
-    setForm({ title: "", author: "", genre: "", image: "" });
-  };
 
   const groupedBooks = books[activeUser].reduce((acc, book) => {
     const genre = book.genre || "Unknown"
@@ -128,7 +119,7 @@ export default function App() {
                       id: crypto.randomUUID(),
                       title: book.title,
                       author: book.author_name?.[0] || "Unknown",
-                      genre: "API",
+                      genre: book.subject?.[0] || "Unknown",
                       image: book.cover_i
                         ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
                         : "",
@@ -144,42 +135,6 @@ export default function App() {
           </div>
         ))}
       </div>
-
-
-      {/* Add Book */}
-      <div className="grid grid-cols-2 gap-2 mb-6">
-        <input
-          placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="p-2 border rounded"
-        />
-        <input
-          placeholder="Author"
-          value={form.author}
-          onChange={(e) => setForm({ ...form, author: e.target.value })}
-          className="p-2 border rounded"
-        />
-        <input
-          placeholder="Genre"
-          value={form.genre}
-          onChange={(e) => setForm({ ...form, genre: e.target.value })}
-          className="p-2 border rounded"
-        />
-        <input
-          placeholder="Image URL"
-          value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
-          className="p-2 border rounded"
-        />
-      </div>
-
-      <button
-        onClick={addBook}
-        className="mb-6 px-4 py-2 bg-blue-500 text-white rounded-2xl shadow"
-      >
-        Add Book
-      </button>
 
       {/* Books Display */}
       <BookList
