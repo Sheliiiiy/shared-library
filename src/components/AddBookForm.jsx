@@ -15,7 +15,7 @@ export default function BookForm({ onAddBook, activeUser }) {
       title,
       author: author || "Unknown",
       genre: genre || "Unknown",
-      image: "",
+      image: null,
       user: activeUser, // IMPORTANT in flat structure
     });
 

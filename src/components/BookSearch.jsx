@@ -12,12 +12,23 @@ export default function BookSearch({ onAddBook, activeUser }) {
             return;
         }
 
-        const res = await fetch(
-            `https://openlibrary.org/search.json?q=${value}`
-        );
+        try {
+            const res = await fetch(
+                `https://openlibrary.org/search.json?q=${encodeURIComponent(value)}`
+            );
 
-        const data = await res.json();
-        setResults(data.docs.slice(0, 6));
+            if (!res.ok) {
+                console.warn(`OpenLibrary API error: ${res.status}`);
+                setResults([]);
+                return;
+            }
+
+            const data = await res.json();
+            setResults((data.docs || []).slice(0, 6));
+        } catch (err) {
+            console.error("Book search failed:", err);
+            setResults([]);
+        }
     };
 
     const handleSelect = (book) => {
@@ -28,7 +39,7 @@ export default function BookSearch({ onAddBook, activeUser }) {
             genre: book.subject?.[0] || "Unknown",
             image: book.cover_i
                 ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-                : "",
+                : null,
         };
 
         onAddBook(newBook);
@@ -59,21 +70,21 @@ export default function BookSearch({ onAddBook, activeUser }) {
             />
 
             {results.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 z-[99999] bg-white border rounded shadow-lg max-h-80 overflow-auto">
+                <div className="absolute left-0 right-0 top-full mt-1 z-99999 bg-white border rounded shadow-lg max-h-80 overflow-auto">
                     {results.map((book, i) => (
                         <div
                             key={i}
                             className="p-2 hover:bg-gray-100 cursor-pointer flex gap-3 items-center"
                             onClick={() => handleSelect(book)}
                         >
-                            <img
-                                src={
-                                    book.cover_i
-                                        ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
-                                        : ""
-                                }
-                                className="h-12 w-10 object-cover rounded"
-                            />
+                            {book.cover_i ? (
+                                <img
+                                    src={`https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`}
+                                    className="h-12 w-10 object-cover rounded"
+                                />
+                            ) : (
+                                <div className="h-12 w-10 bg-gray-200 rounded shrink-0" />
+                            )}
 
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium line-clamp-1">

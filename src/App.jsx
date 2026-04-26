@@ -15,6 +15,15 @@ import {
   removeBooksByUser,
 } from "./storage/books.js";
 import { subscribeToLibrary, updateLibrary } from "./firebase/db.js";
+import {
+  getLibrary,
+  addUser as apiAddUser,
+  removeUser as apiRemoveUser,
+  addBook as apiAddBook,
+  removeBook as apiRemoveBook,
+} from "./api/client.js";
+
+const USE_BACKEND = Boolean(import.meta.env.VITE_API_BASE);
 
 export default function App() {
   const [users, setUsers] = useState([]);
@@ -29,21 +38,59 @@ export default function App() {
     return saved || "";
   });
 
-  // Subscribe to Firestore
+  // Primary: Firebase direct (works everywhere). Optional: local backend in dev
   useEffect(() => {
-    const unsub = subscribeToLibrary((data) => {
-      fromServer.current = true;
-      setUsers(data.users || []);
-      setBooks(data.books || []);
-      setLoading(false);
-    });
-    return unsub;
+    let cancelled = false;
+    let unsub = null;
+    let interval = null;
+
+    async function init() {
+      if (USE_BACKEND) {
+        try {
+          const data = await getLibrary();
+          if (cancelled) return;
+          setUsers(data.users || []);
+          setBooks(data.books || []);
+          setLoading(false);
+
+          interval = setInterval(async () => {
+            try {
+              const d = await getLibrary();
+              if (cancelled) return;
+              setUsers(d.users || []);
+              setBooks(d.books || []);
+            } catch (e) {
+              console.error("Poll error:", e);
+            }
+          }, 2000);
+          return;
+        } catch (err) {
+          console.warn("Backend unavailable, falling back to Firestore:", err.message);
+        }
+      }
+
+      // Firestore direct (default for production / no backend)
+      unsub = subscribeToLibrary((data) => {
+        if (cancelled) return;
+        fromServer.current = true;
+        setUsers(data.users || []);
+        setBooks(data.books || []);
+        setLoading(false);
+      });
+    }
+
+    init();
+
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+      if (unsub) unsub();
+    };
   }, []);
 
-  // Sync to Firestore whenever users or books change
-  // Only write when the change came from user action (not from snapshot)
+  // Sync local changes to Firestore (when not using backend)
   useEffect(() => {
-    if (loading) return;
+    if (loading || USE_BACKEND) return;
     if (fromServer.current) {
       fromServer.current = false;
       return;
@@ -60,45 +107,90 @@ export default function App() {
     setActiveUser(user);
   };
 
-  const addUser = (name) => {
+  const addUser = async (name) => {
     if (activeUser !== "GG") return;
-    const next = storageAddUser(users, name);
-    setUsers(next);
-    if (!next.includes(activeUser)) {
-      handleSetActiveUser(next[0]);
+
+    if (USE_BACKEND) {
+      try {
+        const result = await apiAddUser(name);
+        setUsers(result.users);
+        if (!result.users.includes(activeUser)) {
+          handleSetActiveUser(result.users[0]);
+        }
+      } catch (err) {
+        console.error("Failed to add user:", err);
+        setError(err.message);
+      }
+    } else {
+      const next = storageAddUser(users, name);
+      setUsers(next);
+      if (!next.includes(activeUser)) {
+        handleSetActiveUser(next[0]);
+      }
     }
   };
 
-  const removeUser = (name) => {
+  const removeUser = async (name) => {
     if (activeUser !== "GG") return;
     const confirmed = window.confirm(
       `Remove user "${name}" and all their books?`
     );
     if (!confirmed) return;
 
-    const nextUsers = storageRemoveUser(users, name);
-    setUsers(nextUsers);
-
-    // Remove books belonging to deleted user
-    setBooks((prev) => removeBooksByUser(prev, name));
-
-    if (activeUser === name) {
-      handleSetActiveUser(nextUsers[0]);
+    if (USE_BACKEND) {
+      try {
+        const result = await apiRemoveUser(name);
+        setUsers(result.users);
+        setBooks(result.books);
+        if (activeUser === name) {
+          handleSetActiveUser(result.users[0]);
+        }
+      } catch (err) {
+        console.error("Failed to remove user:", err);
+        setError(err.message);
+      }
+    } else {
+      const nextUsers = storageRemoveUser(users, name);
+      setUsers(nextUsers);
+      setBooks((prev) => removeBooksByUser(prev, name));
+      if (activeUser === name) {
+        handleSetActiveUser(nextUsers[0]);
+      }
     }
   };
 
-  const deleteBook = (id) => {
-    setBooks((prev) => storageRemoveBook(prev, id));
+  const deleteBook = async (id) => {
+    if (USE_BACKEND) {
+      try {
+        const result = await apiRemoveBook(id);
+        setBooks(result.books);
+      } catch (err) {
+        console.error("Failed to delete book:", err);
+        setError(err.message);
+      }
+    } else {
+      setBooks((prev) => storageRemoveBook(prev, id));
+    }
   };
 
-  const addBook = (book) => {
-    setBooks((prev) =>
-      storageAddBook(prev, {
-        ...book,
-        user: activeUser,
-        id: book.id || crypto.randomUUID(),
-      })
-    );
+  const addBook = async (book) => {
+    const newBook = {
+      ...book,
+      user: activeUser,
+      id: book.id || crypto.randomUUID(),
+    };
+
+    if (USE_BACKEND) {
+      try {
+        const result = await apiAddBook(newBook);
+        setBooks(result.books);
+      } catch (err) {
+        console.error("Failed to add book:", err);
+        setError(err.message);
+      }
+    } else {
+      setBooks((prev) => storageAddBook(prev, newBook));
+    }
   };
 
   if (loading) {
