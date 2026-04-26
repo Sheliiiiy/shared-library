@@ -1,9 +1,3 @@
-const USER_KEY = "active-user"
+// Compatibility re-exports — prefer importing from ./users.js directly
+export { getActiveUser as getUser, setActiveUser as setUser } from "./users.js"
 
-export function setUser(user) {
-  localStorage.setItem(USER_KEY, user)
-}
-
-export function getUser() {
-  return localStorage.getItem(USER_KEY) || "GG"
-}

@@ -1,18 +1,13 @@
-const STORAGE_KEY = "book-library"
+// Pure helpers — persistence now handled in App.jsx via Firebase
 
-// Get all books
-export function getBooks() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []
+export function addBook(books, book) {
+  return [...books, book]
 }
 
-// Save all books
-export function saveBooks(books) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(books))
+export function removeBook(books, id) {
+  return books.filter((b) => b.id !== id)
 }
 
-// Add one book
-export function addBook(book) {
-  const books = getBooks()
-  books.push(book)
-  saveBooks(books)
+export function removeBooksByUser(books, user) {
+  return books.filter((b) => b.user !== user)
 }
