@@ -2,7 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Allow read/write access to the shared library document
-    // NOTE: In production, you should add authentication checks
     match /library/shared {
       allow read, write: if true;
     }
