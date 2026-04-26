@@ -42,9 +42,6 @@ export default function BookForm({ onAddBook, activeUser }) {
           </svg>
           <h2 className="text-lg font-semibold text-[var(--text-h)]">Add Book Manually</h2>
         </div>
-        <p className="text-sm text-[var(--text)]">
-          Can&apos;t find what you&apos;re looking for? Add it yourself.
-        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">

@@ -90,9 +90,6 @@ export default function BookSearch({ onAddBook, activeUser }) {
           </svg>
           <h2 className="text-lg font-semibold text-[var(--text-h)]">Discover Books</h2>
         </div>
-        <p className="text-sm text-[var(--text)]">
-          Search the Open Library catalog and add books to your collection instantly.
-        </p>
       </div>
 
       <div className="relative">

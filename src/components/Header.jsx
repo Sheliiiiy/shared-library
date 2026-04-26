@@ -51,7 +51,6 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
             <h1 className="text-2xl font-bold text-[var(--text-h)] leading-tight">
               Whispering Pages
             </h1>
-            <p className="text-sm text-[var(--text)]">Shared Online Library</p>
           </div>
         </div>
 
