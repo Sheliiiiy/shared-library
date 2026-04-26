@@ -53,7 +53,7 @@ export default function BookForm({ onAddBook, activeUser }) {
 
     <button
       type="submit"
-      className="h-[42px] bg-black text-white rounded px-4 hover:bg-gray-800"
+      className="h-10.5 bg-black text-white rounded px-4 hover:bg-gray-800"
     >
       Add
     </button>
