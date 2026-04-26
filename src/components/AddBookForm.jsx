@@ -16,49 +16,88 @@ export default function BookForm({ onAddBook, activeUser }) {
       author: author || "Unknown",
       genre: genre || "Unknown",
       image: null,
-      user: activeUser, // IMPORTANT in flat structure
+      user: activeUser,
+      volumes: 1,
+      volumesRead: [false],
     });
 
     e.target.reset();
   };
 
   return (
-    <form
-  onSubmit={handleSubmit}
-  className="mb-6 p-4 border rounded-lg shadow-sm"
->
-  <h2 className="text-lg font-semibold mb-3">
-    ➕ Add Book Manually
-  </h2>
+    <form onSubmit={handleSubmit} className="mb-8 p-5 rounded-xl border border-[var(--border)] bg-[var(--code-bg)]">
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <svg
+            className="w-5 h-5 text-[var(--accent)]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          <h2 className="text-lg font-semibold text-[var(--text-h)]">Add Book Manually</h2>
+        </div>
+        <p className="text-sm text-[var(--text)]">
+          Can&apos;t find what you&apos;re looking for? Add it yourself.
+        </p>
+      </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-    
-    <input
-      name="title"
-      className="border p-2 rounded"
-      placeholder="Title"
-    />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+        <div className="lg:col-span-2">
+          <label className="block text-xs font-medium text-[var(--text-h)] mb-1">Title</label>
+          <input
+            name="title"
+            type="text"
+            required
+            className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-white text-sm placeholder:text-gray-400 input-focus"
+            placeholder="e.g. The Great Gatsby"
+          />
+        </div>
 
-    <input
-      name="author"
-      className="border p-2 rounded"
-      placeholder="Author"
-    />
+        <div>
+          <label className="block text-xs font-medium text-[var(--text-h)] mb-1">Author</label>
+          <input
+            name="author"
+            type="text"
+            className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-white text-sm placeholder:text-gray-400 input-focus"
+            placeholder="e.g. F. Scott Fitzgerald"
+          />
+        </div>
 
-    <input
-      name="genre"
-      className="border p-2 rounded"
-      placeholder="Genre"
-    />
+        <div>
+          <label className="block text-xs font-medium text-[var(--text-h)] mb-1">Genre</label>
+          <input
+            name="genre"
+            type="text"
+            className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-white text-sm placeholder:text-gray-400 input-focus"
+            placeholder="e.g. Fiction"
+          />
+        </div>
 
-    <button
-      type="submit"
-      className="h-10.5 bg-black text-white rounded px-4 hover:bg-gray-800"
-    >
-      Add
-    </button>
-
-  </div>
-</form>
+        <button
+          type="submit"
+          className="h-[42px] px-5 rounded-xl btn-primary text-sm font-medium flex items-center justify-center gap-2"
+        >
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          Add Book
+        </button>
+      </div>
+    </form>
   );
 }

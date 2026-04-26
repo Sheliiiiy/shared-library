@@ -50,6 +50,14 @@ export async function addBook(book) {
   });
 }
 
+export async function updateBook(book) {
+  if (!API_BASE) throw new Error("VITE_API_BASE is not set");
+  return request(`${API_BASE}/library/books/${encodeURIComponent(book.id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(book),
+  });
+}
+
 export async function removeBook(id) {
   if (!API_BASE) throw new Error("VITE_API_BASE is not set");
   return request(`${API_BASE}/library/books/${encodeURIComponent(id)}`, {

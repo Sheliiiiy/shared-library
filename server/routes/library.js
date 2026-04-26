@@ -143,6 +143,28 @@ module.exports = function (db) {
     }
   });
 
+  /**
+   * PATCH /api/library/books/:id
+   * Updates fields of a book by its id.
+   */
+  router.patch("/books/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const snap = await docRef.get();
+      const data = snap.exists ? snap.data() : { ...defaultData };
+
+      const books = (data.books || []).map((b) =>
+        b.id === id ? { ...b, ...updates } : b
+      );
+      await docRef.update({ books });
+      res.json({ success: true, books });
+    } catch (err) {
+      console.error("[PATCH /api/library/books/:id] error:", err);
+      res.status(500).json({ error: "Failed to update book" });
+    }
+  });
+
   return router;
 };
 
