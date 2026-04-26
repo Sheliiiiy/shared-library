@@ -9,26 +9,43 @@ const defaultData = {
 };
 
 export async function getLibrary() {
-  const snap = await getDoc(LIBRARY_DOC);
-  if (snap.exists()) {
-    return snap.data();
+  try {
+    const snap = await getDoc(LIBRARY_DOC);
+    if (snap.exists()) {
+      return snap.data();
+    }
+    await setDoc(LIBRARY_DOC, defaultData);
+    return defaultData;
+  } catch (err) {
+    console.error("[Firebase] getLibrary error:", err);
+    throw err;
   }
-  await setDoc(LIBRARY_DOC, defaultData);
-  return defaultData;
 }
 
 export function subscribeToLibrary(callback) {
-  return onSnapshot(LIBRARY_DOC, (snap) => {
-    if (snap.exists()) {
-      callback(snap.data());
-    } else {
-      setDoc(LIBRARY_DOC, defaultData);
-      callback(defaultData);
+  return onSnapshot(
+    LIBRARY_DOC,
+    (snap) => {
+      if (snap.exists()) {
+        callback(snap.data());
+      } else {
+        setDoc(LIBRARY_DOC, defaultData)
+          .then(() => callback(defaultData))
+          .catch((err) => console.error("[Firebase] create doc error:", err));
+      }
+    },
+    (err) => {
+      console.error("[Firebase] onSnapshot error:", err);
     }
-  });
+  );
 }
 
 export async function updateLibrary(data) {
-  await setDoc(LIBRARY_DOC, data);
+  try {
+    await setDoc(LIBRARY_DOC, data);
+  } catch (err) {
+    console.error("[Firebase] updateLibrary error:", err);
+    throw err;
+  }
 }
 

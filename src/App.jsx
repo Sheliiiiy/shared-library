@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
 import BookSearch from "./components/BookSearch";
 import BookList from "./components/BookList";
@@ -20,6 +20,9 @@ export default function App() {
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fromServer = useRef(false);
 
   const [activeUser, setActiveUserState] = useState(() => {
     const saved = getActiveUser();
@@ -29,6 +32,7 @@ export default function App() {
   // Subscribe to Firestore
   useEffect(() => {
     const unsub = subscribeToLibrary((data) => {
+      fromServer.current = true;
       setUsers(data.users || []);
       setBooks(data.books || []);
       setLoading(false);
@@ -36,11 +40,19 @@ export default function App() {
     return unsub;
   }, []);
 
-  // Sync to Firestore whenever users or books change (after initial load)
+  // Sync to Firestore whenever users or books change
+  // Only write when the change came from user action (not from snapshot)
   useEffect(() => {
     if (loading) return;
-    updateLibrary({ users, books });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (fromServer.current) {
+      fromServer.current = false;
+      return;
+    }
+    updateLibrary({ users, books }).catch((err) => {
+      console.error("Failed to sync to Firebase:", err);
+      setError("Failed to save changes. Check console for details.");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users, books]);
 
   const handleSetActiveUser = (user) => {
@@ -91,7 +103,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto flex items-center justify-center min-h-[200px]">
+      <div className="p-6 max-w-5xl mx-auto flex items-center justify-center min-h-50">
         <p className="text-gray-500">Loading library...</p>
       </div>
     );
@@ -99,6 +111,11 @@ export default function App() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
+          {error}
+        </div>
+      )}
       <Header
         users={users}
         activeUser={activeUser}
