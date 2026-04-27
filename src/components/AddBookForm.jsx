@@ -1,4 +1,4 @@
-export default function BookForm({ onAddBook, activeUser }) {
+export default function BookForm({ onAddBook, activeUser, collections, activeCollection }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -7,6 +7,7 @@ export default function BookForm({ onAddBook, activeUser }) {
     const title = form.get("title");
     const author = form.get("author");
     const genre = form.get("genre");
+    const collectionId = form.get("collection");
 
     if (!title) return;
 
@@ -19,10 +20,13 @@ export default function BookForm({ onAddBook, activeUser }) {
       user: activeUser,
       volumes: 1,
       volumesRead: [false],
+      collectionId: collectionId || null,
     });
 
     e.target.reset();
   };
+
+  const userCollections = collections.filter((c) => c.user === activeUser);
 
   return (
     <form onSubmit={handleSubmit} className="mb-8 p-5 rounded-xl border border-[var(--border)] bg-[var(--code-bg)]">
@@ -44,7 +48,7 @@ export default function BookForm({ onAddBook, activeUser }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
         <div className="lg:col-span-2">
           <label className="block text-xs font-medium text-[var(--text-h)] mb-1">Title</label>
           <input
@@ -76,6 +80,22 @@ export default function BookForm({ onAddBook, activeUser }) {
           />
         </div>
 
+        <div>
+          <label className="block text-xs font-medium text-[var(--text-h)] mb-1">Collection</label>
+          <select
+            name="collection"
+            defaultValue={activeCollection === "all" ? "" : activeCollection}
+            className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-white text-sm input-focus"
+          >
+            <option value="">No collection</option>
+            {userCollections.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <button
           type="submit"
           className="h-[42px] px-5 rounded-xl btn-primary text-sm font-medium flex items-center justify-center gap-2"
@@ -98,3 +118,4 @@ export default function BookForm({ onAddBook, activeUser }) {
     </form>
   );
 }
+

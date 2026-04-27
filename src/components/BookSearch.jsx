@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function BookSearch({ onAddBook, activeUser }) {
+export default function BookSearch({ onAddBook, activeUser, collections, activeCollection }) {
   const timeoutRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -8,6 +8,9 @@ export default function BookSearch({ onAddBook, activeUser }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState(activeCollection === "all" ? "" : activeCollection);
+
+  const userCollections = collections.filter((c) => c.user === activeUser);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -63,6 +66,7 @@ export default function BookSearch({ onAddBook, activeUser }) {
         : null,
       volumes: 1,
       volumesRead: [false],
+      collectionId: selectedCollection || null,
     };
 
     onAddBook(newBook);
@@ -74,7 +78,7 @@ export default function BookSearch({ onAddBook, activeUser }) {
 
   return (
     <div ref={containerRef} className="relative mb-8">
-      <div className="mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2 mb-1">
           <svg
             className="w-5 h-5 text-[var(--accent)]"
@@ -89,6 +93,21 @@ export default function BookSearch({ onAddBook, activeUser }) {
             <path d="m21 21-4.3-4.3" />
           </svg>
           <h2 className="text-lg font-semibold text-[var(--text-h)]">Discover Books</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-[var(--text)]">Add to:</label>
+          <select
+            value={selectedCollection}
+            onChange={(e) => setSelectedCollection(e.target.value)}
+            className="px-2 py-1 rounded-lg border border-[var(--border)] bg-white text-xs input-focus"
+          >
+            <option value="">No collection</option>
+            {userCollections.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -183,3 +202,4 @@ export default function BookSearch({ onAddBook, activeUser }) {
     </div>
   );
 }
+

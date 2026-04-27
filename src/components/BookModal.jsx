@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function BookModal({ book, onClose, onUpdateBook }) {
+export default function BookModal({ book, onClose, onUpdateBook, collections }) {
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
@@ -35,6 +35,11 @@ export default function BookModal({ book, onClose, onUpdateBook }) {
     const arr = book.volumesRead ? [...book.volumesRead] : [];
     arr[index] = !arr[index];
     onUpdateBook({ ...book, volumesRead: arr });
+  };
+
+  const handleCollectionChange = (e) => {
+    const value = e.target.value;
+    onUpdateBook({ ...book, collectionId: value || null });
   };
 
   const totalVolumes = book.volumes ?? 1;
@@ -98,6 +103,22 @@ export default function BookModal({ book, onClose, onUpdateBook }) {
           )}
 
           <div className="w-full flex items-center justify-center gap-3 mt-2">
+            <label className="text-sm font-medium text-[var(--text-h)]">Collection</label>
+            <select
+              value={book.collectionId || ""}
+              onChange={handleCollectionChange}
+              className="px-3 py-2 rounded-xl border border-[var(--border)] bg-white text-sm input-focus"
+            >
+              <option value="">No collection</option>
+              {collections.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full flex items-center justify-center gap-3 mt-3">
             <label className="text-sm font-medium text-[var(--text-h)]">Volumes</label>
             <input
               type="number"
@@ -139,3 +160,4 @@ export default function BookModal({ book, onClose, onUpdateBook }) {
     </div>
   );
 }
+

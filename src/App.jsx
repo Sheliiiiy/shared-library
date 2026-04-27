@@ -22,6 +22,9 @@ import {
   addBook as apiAddBook,
   removeBook as apiRemoveBook,
   updateBook as apiUpdateBook,
+  addCollection as apiAddCollection,
+  removeCollection as apiRemoveCollection,
+  updateCollection as apiUpdateCollection,
 } from "./api/client.js";
 
 const USE_BACKEND = Boolean(import.meta.env.VITE_API_BASE);
@@ -29,6 +32,8 @@ const USE_BACKEND = Boolean(import.meta.env.VITE_API_BASE);
 export default function App() {
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [activeCollection, setActiveCollection] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -61,6 +66,7 @@ export default function App() {
           if (cancelled) return;
           setUsers(data.users || []);
           setBooks(normalizeBooks(data.books));
+          setCollections(data.collections || []);
           setLoading(false);
 
           interval = setInterval(async () => {
@@ -69,6 +75,7 @@ export default function App() {
               if (cancelled) return;
               setUsers(d.users || []);
               setBooks(normalizeBooks(d.books));
+              setCollections(d.collections || []);
             } catch (e) {
               console.error("Poll error:", e);
             }
@@ -89,6 +96,7 @@ export default function App() {
           volumes: b.volumes ?? 1,
           volumesRead: b.volumesRead || Array(b.volumes ?? 1).fill(false),
         })));
+        setCollections(data.collections || []);
         setLoading(false);
       });
     }
@@ -109,12 +117,12 @@ export default function App() {
       fromServer.current = false;
       return;
     }
-    updateLibrary({ users, books }).catch((err) => {
+    updateLibrary({ users, books, collections }).catch((err) => {
       console.error("Failed to sync to Firebase:", err);
       setError("Failed to save changes. Check console for details.");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [users, books]);
+  }, [users, books, collections]);
 
   const handleSetActiveUser = (user) => {
     setActiveUserState(user);
@@ -223,6 +231,67 @@ export default function App() {
     }
   };
 
+  const addCollection = async (name) => {
+    const newCollection = {
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      user: activeUser,
+    };
+
+    if (USE_BACKEND) {
+      try {
+        const result = await apiAddCollection(newCollection.name, newCollection.user);
+        setCollections(result.collections);
+      } catch (err) {
+        console.error("Failed to add collection:", err);
+        setError(err.message);
+      }
+    } else {
+      setCollections((prev) => [...prev, newCollection]);
+    }
+  };
+
+  const removeCollection = async (id) => {
+    const confirmed = window.confirm("Delete this collection? Books will remain in your library.");
+    if (!confirmed) return;
+
+    if (USE_BACKEND) {
+      try {
+        const result = await apiRemoveCollection(id);
+        setCollections(result.collections);
+        setBooks(result.books);
+        if (activeCollection === id) {
+          setActiveCollection("all");
+        }
+      } catch (err) {
+        console.error("Failed to remove collection:", err);
+        setError(err.message);
+      }
+    } else {
+      setCollections((prev) => prev.filter((c) => c.id !== id));
+      setBooks((prev) => prev.map((b) => (b.collectionId === id ? { ...b, collectionId: null } : b)));
+      if (activeCollection === id) {
+        setActiveCollection("all");
+      }
+    }
+  };
+
+  const updateCollectionName = async (id, name) => {
+    if (USE_BACKEND) {
+      try {
+        const result = await apiUpdateCollection(id, name);
+        setCollections(result.collections);
+      } catch (err) {
+        console.error("Failed to update collection:", err);
+        setError(err.message);
+      }
+    } else {
+      setCollections((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, name: name.trim() } : c))
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -318,15 +387,26 @@ export default function App() {
         </div>
       </div>
 
-      <BookSearch activeUser={activeUser} onAddBook={addBook} />
+      <BookSearch activeUser={activeUser} onAddBook={addBook} collections={collections} activeCollection={activeCollection} />
 
       <div className="my-6 border-t border-[var(--border)]" />
 
-      <BookForm onAddBook={addBook} activeUser={activeUser} />
+      <BookForm onAddBook={addBook} activeUser={activeUser} collections={collections} activeCollection={activeCollection} />
 
       <div className="my-6 border-t border-[var(--border)]" />
 
-      <BookList books={books} user={activeUser} onDelete={deleteBook} onUpdateBook={updateBook} />
+      <BookList
+        books={books}
+        user={activeUser}
+        onDelete={deleteBook}
+        onUpdateBook={updateBook}
+        collections={collections}
+        activeCollection={activeCollection}
+        onSetActiveCollection={setActiveCollection}
+        onAddCollection={addCollection}
+        onRemoveCollection={removeCollection}
+        onUpdateCollectionName={updateCollectionName}
+      />
     </div>
     </>
   );

@@ -4,6 +4,7 @@ const LIBRARY_DOC_PATH = "library/shared";
 const defaultData = {
   users: ["GG", "VK"],
   books: [],
+  collections: [],
 };
 
 module.exports = function (db) {
@@ -162,6 +163,103 @@ module.exports = function (db) {
     } catch (err) {
       console.error("[PATCH /api/library/books/:id] error:", err);
       res.status(500).json({ error: "Failed to update book" });
+    }
+  });
+
+  /**
+   * GET /api/library/collections
+   * Returns all collections.
+   */
+  router.get("/collections", async (_req, res) => {
+    try {
+      const snap = await docRef.get();
+      const data = snap.exists ? snap.data() : { ...defaultData };
+      res.json({ success: true, collections: data.collections || [] });
+    } catch (err) {
+      console.error("[GET /api/library/collections] error:", err);
+      res.status(500).json({ error: "Failed to fetch collections" });
+    }
+  });
+
+  /**
+   * POST /api/library/collections
+   * Adds a new collection.
+   */
+  router.post("/collections", async (req, res) => {
+    try {
+      const { name, user } = req.body;
+      if (!name || typeof name !== "string" || !user || typeof user !== "string") {
+        return res.status(400).json({ error: "Missing or invalid 'name' or 'user' field" });
+      }
+      const trimmed = name.trim();
+      if (!trimmed) {
+        return res.status(400).json({ error: "Name cannot be empty" });
+      }
+
+      const snap = await docRef.get();
+      const data = snap.exists ? snap.data() : { ...defaultData };
+      const collections = data.collections || [];
+
+      const newCollection = { id: crypto.randomUUID(), name: trimmed, user };
+      collections.push(newCollection);
+      await docRef.update({ collections });
+      res.json({ success: true, collections });
+    } catch (err) {
+      console.error("[POST /api/library/collections] error:", err);
+      res.status(500).json({ error: "Failed to add collection" });
+    }
+  });
+
+  /**
+   * DELETE /api/library/collections/:id
+   * Removes a collection and clears collectionId from associated books.
+   */
+  router.delete("/collections/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const snap = await docRef.get();
+      const data = snap.exists ? snap.data() : { ...defaultData };
+
+      const collections = (data.collections || []).filter((c) => c.id !== id);
+      const books = (data.books || []).map((b) =>
+        b.collectionId === id ? { ...b, collectionId: null } : b
+      );
+
+      await docRef.update({ collections, books });
+      res.json({ success: true, collections, books });
+    } catch (err) {
+      console.error("[DELETE /api/library/collections] error:", err);
+      res.status(500).json({ error: "Failed to remove collection" });
+    }
+  });
+
+  /**
+   * PATCH /api/library/collections/:id
+   * Updates a collection's name.
+   */
+  router.patch("/collections/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name } = req.body;
+      if (!name || typeof name !== "string") {
+        return res.status(400).json({ error: "Missing or invalid 'name' field" });
+      }
+      const trimmed = name.trim();
+      if (!trimmed) {
+        return res.status(400).json({ error: "Name cannot be empty" });
+      }
+
+      const snap = await docRef.get();
+      const data = snap.exists ? snap.data() : { ...defaultData };
+
+      const collections = (data.collections || []).map((c) =>
+        c.id === id ? { ...c, name: trimmed } : c
+      );
+      await docRef.update({ collections });
+      res.json({ success: true, collections });
+    } catch (err) {
+      console.error("[PATCH /api/library/collections/:id] error:", err);
+      res.status(500).json({ error: "Failed to update collection" });
     }
   });
 

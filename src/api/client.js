@@ -65,3 +65,31 @@ export async function removeBook(id) {
   });
 }
 
+export async function getCollections() {
+  if (!API_BASE) throw new Error("VITE_API_BASE is not set");
+  return request(`${API_BASE}/library/collections`);
+}
+
+export async function addCollection(name, user) {
+  if (!API_BASE) throw new Error("VITE_API_BASE is not set");
+  return request(`${API_BASE}/library/collections`, {
+    method: "POST",
+    body: JSON.stringify({ name, user }),
+  });
+}
+
+export async function removeCollection(id) {
+  if (!API_BASE) throw new Error("VITE_API_BASE is not set");
+  return request(`${API_BASE}/library/collections/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+export async function updateCollection(id, name) {
+  if (!API_BASE) throw new Error("VITE_API_BASE is not set");
+  return request(`${API_BASE}/library/collections/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+}
+

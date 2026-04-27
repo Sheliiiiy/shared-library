@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import BookModal from "./BookModal";
 
-export default function BookCard({ book, onDelete, onUpdateBook }) {
+export default function BookCard({ book, onDelete, onUpdateBook, collections }) {
   const [imgError, setImgError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const moveMenuRef = useRef(null);
 
   const initials = book.title
     .split(" ")
@@ -11,6 +13,23 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+  const collection = collections.find((c) => c.id === book.collectionId);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (moveMenuRef.current && !moveMenuRef.current.contains(e.target)) {
+        setShowMoveMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleMove = (collectionId) => {
+    onUpdateBook({ ...book, collectionId: collectionId || null });
+    setShowMoveMenu(false);
+  };
 
   return (
     <>
@@ -44,10 +63,15 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
           </h3>
           <p className="text-sm text-[var(--text)] mt-0.5">{book.author}</p>
 
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap gap-1">
             {book.genre && book.genre !== "Unknown" && (
               <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--accent-bg)] text-[var(--accent)] border border-[var(--accent-border)]">
                 {book.genre}
+              </span>
+            )}
+            {collection && (
+              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-200">
+                {collection.name}
               </span>
             )}
           </div>
@@ -74,6 +98,46 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
                 <line x1="3" y1="21" x2="10" y2="14" />
               </svg>
             </button>
+
+            <div className="relative" ref={moveMenuRef}>
+              <button
+                onClick={() => setShowMoveMenu(!showMoveMenu)}
+                className="inline-flex items-center justify-center p-1 rounded-lg text-xs font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
+                title="Move to collection"
+              >
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 9l7 7 7-7" />
+                </svg>
+              </button>
+
+              {showMoveMenu && (
+                <div className="absolute left-0 mt-1 w-36 rounded-lg border border-[var(--border)] bg-white dark:bg-[#1f2028] shadow-lg z-50 overflow-hidden">
+                  <button
+                    onClick={() => handleMove(null)}
+                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                      !book.collectionId
+                        ? "bg-[var(--accent-bg)] text-[var(--accent)] font-medium"
+                        : "text-[var(--text)] hover:bg-[var(--code-bg)]"
+                    }`}
+                  >
+                    No collection
+                  </button>
+                  {collections.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => handleMove(c.id)}
+                      className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                        book.collectionId === c.id
+                          ? "bg-[var(--accent-bg)] text-[var(--accent)] font-medium"
+                          : "text-[var(--text)] hover:bg-[var(--code-bg)]"
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button
               onClick={() => {
@@ -113,8 +177,9 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
       </div>
 
       {isModalOpen && (
-        <BookModal book={book} onClose={() => setIsModalOpen(false)} onUpdateBook={onUpdateBook} />
+        <BookModal book={book} onClose={() => setIsModalOpen(false)} onUpdateBook={onUpdateBook} collections={collections} />
       )}
     </>
   );
 }
+
