@@ -235,7 +235,25 @@ export default function App() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <>
+      {/* Left background image */}
+      <div
+        className="fixed left-0 top-0 h-full bg-cover bg-center opacity-25 hidden lg:block"
+        style={{
+          width: 'max(0px, calc((100vw - 64rem) / 2))',
+          backgroundImage: `url('https://images.stockcake.com/public/e/1/0/e10e5d46-ff9d-45ab-84fc-969d00b3b2c3/magical-library-interior-stockcake.jpg')`,
+        }}
+      />
+      {/* Right background image */}
+      <div
+        className="fixed right-0 top-0 h-full bg-cover bg-center opacity-25 hidden lg:block"
+        style={{
+          width: 'max(0px, calc((100vw - 64rem) / 2))',
+          backgroundImage: `url('https://images.stockcake.com/public/e/1/0/e10e5d46-ff9d-45ab-84fc-969d00b3b2c3/magical-library-interior-stockcake.jpg')`,
+        }}
+      />
+
+      <div className="relative p-6 max-w-5xl mx-auto bg-[var(--bg)]">
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2 animate-fade-in-up">
           <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -310,6 +328,7 @@ export default function App() {
 
       <BookList books={books} user={activeUser} onDelete={deleteBook} onUpdateBook={updateBook} />
     </div>
+    </>
   );
 }
 
