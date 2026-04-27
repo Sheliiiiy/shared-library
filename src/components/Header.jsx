@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function BookLogo({ className }) {
   return (
@@ -21,7 +21,19 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
   const [newUser, setNewUser] = useState("");
   const [userToDelete, setUserToDelete] = useState(users[0] || "");
   const [showAdmin, setShowAdmin] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const isGG = activeUser === "GG";
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleAdd = () => {
     const trimmed = newUser.trim();
@@ -56,23 +68,6 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
 
         {/* User Controls */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* User pill switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--code-bg)] border border-[var(--border)]">
-            {users.map((user) => (
-              <button
-                key={user}
-                onClick={() => setActiveUser(user)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  user === activeUser
-                    ? "bg-[var(--accent)] text-white shadow"
-                    : "text-[var(--text)] hover:bg-[var(--border)]"
-                }`}
-              >
-                {user}
-              </button>
-            ))}
-          </div>
-
           {/* Admin Toggle */}
           {isGG && (
             <button
@@ -82,6 +77,48 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
               {showAdmin ? "Close" : "Manage"}
             </button>
           )}
+
+          {/* User dropdown switcher */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-[var(--accent)] text-white shadow transition-all"
+            >
+              <span>{activeUser}</span>
+              <svg
+                className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 rounded-xl border border-[var(--border)] bg-white dark:bg-[#1f2028] shadow-lg z-50 overflow-hidden">
+                {users.map((user) => (
+                  <button
+                    key={user}
+                    onClick={() => {
+                      setActiveUser(user);
+                      setDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      user === activeUser
+                        ? "bg-[var(--accent-bg)] text-[var(--accent)] font-medium"
+                        : "text-[var(--text)] hover:bg-[var(--code-bg)]"
+                    }`}
+                  >
+                    {user}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
