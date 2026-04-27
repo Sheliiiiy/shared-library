@@ -48,12 +48,19 @@ export default function App() {
     let interval = null;
 
     async function init() {
+      const normalizeBooks = (books) =>
+        (books || []).map((b) => ({
+          ...b,
+          volumes: b.volumes ?? 1,
+          volumesRead: b.volumesRead || Array(b.volumes ?? 1).fill(false),
+        }));
+
       if (USE_BACKEND) {
         try {
           const data = await getLibrary();
           if (cancelled) return;
           setUsers(data.users || []);
-          setBooks(data.books || []);
+          setBooks(normalizeBooks(data.books));
           setLoading(false);
 
           interval = setInterval(async () => {
@@ -61,7 +68,7 @@ export default function App() {
               const d = await getLibrary();
               if (cancelled) return;
               setUsers(d.users || []);
-              setBooks(d.books || []);
+              setBooks(normalizeBooks(d.books));
             } catch (e) {
               console.error("Poll error:", e);
             }
@@ -77,7 +84,11 @@ export default function App() {
         if (cancelled) return;
         fromServer.current = true;
         setUsers(data.users || []);
-        setBooks(data.books || []);
+        setBooks((data.books || []).map((b) => ({
+          ...b,
+          volumes: b.volumes ?? 1,
+          volumesRead: b.volumesRead || Array(b.volumes ?? 1).fill(false),
+        })));
         setLoading(false);
       });
     }

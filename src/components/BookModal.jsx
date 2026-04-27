@@ -16,12 +16,29 @@ export default function BookModal({ book, onClose, onUpdateBook }) {
     .join("")
     .toUpperCase();
 
+  const resizeVolumesRead = (current, newLength) => {
+    const arr = current || [];
+    if (arr.length === newLength) return arr;
+    if (arr.length > newLength) return arr.slice(0, newLength);
+    return [...arr, ...Array(newLength - arr.length).fill(false)];
+  };
+
   const handleVolumesChange = (e) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 1 && value <= 100) {
-      onUpdateBook({ ...book, volumes: value });
+      const nextVolumesRead = resizeVolumesRead(book.volumesRead, value);
+      onUpdateBook({ ...book, volumes: value, volumesRead: nextVolumesRead });
     }
   };
+
+  const handleToggleVolume = (index) => {
+    const arr = book.volumesRead ? [...book.volumesRead] : [];
+    arr[index] = !arr[index];
+    onUpdateBook({ ...book, volumesRead: arr });
+  };
+
+  const totalVolumes = book.volumes ?? 1;
+  const showVolumeButtons = totalVolumes > 1;
 
   return (
     <div
@@ -86,11 +103,37 @@ export default function BookModal({ book, onClose, onUpdateBook }) {
               type="number"
               min={1}
               max={100}
-              value={book.volumes ?? 1}
+              value={totalVolumes}
               onChange={handleVolumesChange}
               className="w-20 px-3 py-2 rounded-xl border border-[var(--border)] bg-white text-sm text-center input-focus"
             />
           </div>
+
+          {showVolumeButtons && (
+            <div className="w-full mt-4">
+              <p className="text-xs text-[var(--text)] mb-2">Click to mark as read</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {Array.from({ length: totalVolumes }, (_, i) => {
+                  const isRead = book.volumesRead?.[i] || false;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleToggleVolume(i)}
+                      title={isRead ? "Mark as unread" : "Mark as read"}
+                      className={[
+                        "w-9 h-9 rounded-lg text-sm font-semibold border transition-colors",
+                        isRead
+                          ? "bg-[var(--accent)] text-white border-[var(--accent)]"
+                          : "bg-[var(--code-bg)] text-[var(--text-h)] border-[var(--border)] hover:border-[var(--accent)]",
+                      ].join(" ")}
+                    >
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
