@@ -76,6 +76,20 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
             </button>
 
             <button
+              onClick={() => {
+                const newImage = window.prompt("Enter new picture link:", book.image || "");
+                if (newImage !== null) {
+                  onUpdateBook({ ...book, image: newImage.trim() || undefined });
+                  setImgError(false);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+              title="Edit picture link"
+            >
+              ✏️
+            </button>
+
+            <button
               onClick={() => onDelete(book.id)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200"
               title="Delete book"
