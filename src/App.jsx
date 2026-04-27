@@ -296,8 +296,8 @@ export default function App() {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-[var(--text)]">Loading library...</p>
+          <div className="w-8 h-8 border-2 border-(--accent) border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-(--text)">Loading library...</p>
         </div>
       </div>
     );
@@ -322,10 +322,10 @@ export default function App() {
         }}
       />
 
-      <div className="relative p-6 max-w-5xl mx-auto bg-[var(--bg)]">
+      <div className="relative p-6 max-w-5xl mx-auto bg-(--bg)">
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2 animate-fade-in-up">
-          <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <path d="M12 8v4" />
             <path d="M12 16h.01" />
@@ -343,24 +343,24 @@ export default function App() {
       />
 
       {/* Stats bar */}
-      <div className="mb-6 flex items-center gap-4 p-3 rounded-xl bg-[var(--code-bg)] border border-[var(--border)]">
+      <div className="mb-6 flex items-center gap-4 p-3 rounded-xl bg-(--code-bg) border border-(--border)">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-bg)] text-[var(--accent)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-(--accent-bg) text-(--accent) flex items-center justify-center">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
             </svg>
           </div>
           <div>
-            <p className="text-xs text-[var(--text)]">{activeUser}&apos;s collection</p>
-            <p className="text-sm font-semibold text-[var(--text-h)]">
+            <p className="text-xs text-(--text)">{activeUser}&apos;s collection</p>
+            <p className="text-sm font-semibold text-(--text-h)">
               {userBooks.length} {userBooks.length === 1 ? "book" : "books"}
             </p>
           </div>
         </div>
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div className="h-8 w-px bg-(--border)" />
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-bg)] text-[var(--accent)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-(--accent-bg) text-(--accent) flex items-center justify-center">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
@@ -369,31 +369,31 @@ export default function App() {
             </svg>
           </div>
           <div>
-            <p className="text-xs text-[var(--text)]">Total users</p>
-            <p className="text-sm font-semibold text-[var(--text-h)]">{users.length}</p>
+            <p className="text-xs text-(--text)">Total users</p>
+            <p className="text-sm font-semibold text-(--text-h)">{users.length}</p>
           </div>
         </div>
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div className="h-8 w-px bg-(--border)" />
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-bg)] text-[var(--accent)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-(--accent-bg) text-(--accent) flex items-center justify-center">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
           <div>
-            <p className="text-xs text-[var(--text)]">Total books</p>
-            <p className="text-sm font-semibold text-[var(--text-h)]">{books.length}</p>
+            <p className="text-xs text-(--text)">Total books</p>
+            <p className="text-sm font-semibold text-(--text-h)">{books.length}</p>
           </div>
         </div>
       </div>
 
       <BookSearch activeUser={activeUser} onAddBook={addBook} collections={collections} activeCollection={activeCollection} />
 
-      <div className="my-6 border-t border-[var(--border)]" />
+      <div className="my-6 border-t border-(--border)" />
 
       <BookForm onAddBook={addBook} activeUser={activeUser} collections={collections} activeCollection={activeCollection} />
 
-      <div className="my-6 border-t border-[var(--border)]" />
+      <div className="my-6 border-t border-(--border)" />
 
       <BookList
         books={books}

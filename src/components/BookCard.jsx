@@ -33,20 +33,20 @@ export default function BookCard({ book, onDelete, onUpdateBook, collections }) 
 
   return (
     <>
-      <div className="group relative p-4 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#1f2028] card-hover flex gap-4 items-start animate-fade-in-up">
+      <div className="group relative p-4 rounded-2xl border border-(--border) bg-white dark:bg-[#1f2028] card-hover flex gap-4 items-start animate-fade-in-up">
         {/* Cover */}
         <div>
           {book.image && !imgError ? (
             <img
               src={book.image}
               alt={book.title}
-              className="h-32 w-24 object-cover rounded-lg shadow-sm flex-shrink-0 bg-gray-100"
+              className="h-32 w-24 object-cover rounded-lg shadow-sm shrink-0 bg-gray-100"
               onError={() => setImgError(true)}
               loading="lazy"
             />
           ) : (
             <div
-              className="h-32 w-24 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-lg font-bold shadow-sm"
+              className="h-32 w-24 rounded-lg shrink-0 flex items-center justify-center text-white text-lg font-bold shadow-sm"
               style={{
                 background: `linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%)`,
               }}
@@ -58,14 +58,14 @@ export default function BookCard({ book, onDelete, onUpdateBook, collections }) 
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[var(--text-h)] leading-snug truncate">
+          <h3 className="font-semibold text-(--text-h) leading-snug truncate">
             {book.title}
           </h3>
-          <p className="text-sm text-[var(--text)] mt-0.5">{book.author}</p>
+          <p className="text-sm text-(--text) mt-0.5">{book.author}</p>
 
           <div className="mt-2 flex flex-wrap gap-1">
             {book.genre && book.genre !== "Unknown" && (
-              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--accent-bg)] text-[var(--accent)] border border-[var(--accent-border)]">
+              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-(--accent-bg)-[var(--accent)] border border-(--accent-border)">
                 {book.genre}
               </span>
             )}
@@ -80,7 +80,7 @@ export default function BookCard({ book, onDelete, onUpdateBook, collections }) 
           <div className="mt-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center justify-center p-1 rounded-lg text-xs font-medium text-[var(--accent)] bg-[var(--accent-bg)] hover:bg-[var(--accent-border)] border border-[var(--accent-border)]"
+              className="inline-flex items-center justify-center p-1 rounded-lg text-xs font-medium text-(--accent)var(--accent-bg)] hover:bg-(--accent-border) border border-(--accent-border)"
               title="View details"
             >
               <svg
@@ -111,13 +111,13 @@ export default function BookCard({ book, onDelete, onUpdateBook, collections }) 
               </button>
 
               {showMoveMenu && (
-                <div className="absolute left-0 mt-1 w-36 rounded-lg border border-[var(--border)] bg-white dark:bg-[#1f2028] shadow-lg z-50 overflow-hidden">
+                <div className="absolute left-0 mt-1 w-36 rounded-lg border border-(--border) bg-white dark:bg-[#1f2028] shadow-lg z-50 overflow-hidden">
                   <button
                     onClick={() => handleMove(null)}
                     className={`w-full text-left px-3 py-2 text-xs transition-colors ${
                       !book.collectionId
-                        ? "bg-[var(--accent-bg)] text-[var(--accent)] font-medium"
-                        : "text-[var(--text)] hover:bg-[var(--code-bg)]"
+                        ? "bg-(--accent-bg) text-(--accent) font-medium"
+                        : "text-(--text) hover:bg-(--code-bg)"
                     }`}
                   >
                     No collection
@@ -128,8 +128,8 @@ export default function BookCard({ book, onDelete, onUpdateBook, collections }) 
                       onClick={() => handleMove(c.id)}
                       className={`w-full text-left px-3 py-2 text-xs transition-colors ${
                         book.collectionId === c.id
-                          ? "bg-[var(--accent-bg)] text-[var(--accent)] font-medium"
-                          : "text-[var(--text)] hover:bg-[var(--code-bg)]"
+                          ? "bg-(--accent-bg) text-(--accent) font-medium"
+                          : "text-(--text) hover:bg-(--code-bg)"
                       }`}
                     >
                       {c.name}

@@ -51,12 +51,12 @@ export default function BookModal({ book, onClose, onUpdateBook, collections }) 
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md p-6 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#1f2028] shadow-2xl animate-modal-scale"
+        className="relative w-full max-w-md p-6 rounded-2xl border border-(--border) bg-white dark:bg-[#1f2028] shadow-2xl animate-modal-scale"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1.5 rounded-lg text-[var(--text)] hover:bg-[var(--code-bg)] transition-colors"
+          className="absolute top-3 right-3 p-1.5 rounded-lg text-(--text) hover:bg-(--code-bg) transition-colors"
           aria-label="Close"
         >
           <svg
@@ -91,23 +91,23 @@ export default function BookModal({ book, onClose, onUpdateBook, collections }) 
             </div>
           )}
 
-          <h2 className="text-xl font-semibold text-[var(--text-h)] leading-snug mb-1">
+          <h2 className="text-xl font-semibold text-(--text-h) leading-snug mb-1">
             {book.title}
           </h2>
-          <p className="text-base text-[var(--text)] mb-3">{book.author}</p>
+          <p className="text-base text-(--text) mb-3">{book.author}</p>
 
           {book.genre && book.genre !== "Unknown" && (
-            <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium bg-[var(--accent-bg)] text-[var(--accent)] border border-[var(--accent-border)] mb-4">
+            <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium bg-(--accent-bg) text-(--accent) border border-(--accent-border) mb-4">
               {book.genre}
             </span>
           )}
 
           <div className="w-full flex items-center justify-center gap-3 mt-2">
-            <label className="text-sm font-medium text-[var(--text-h)]">Collection</label>
+            <label className="text-sm font-medium text-(--text-h)">Collection</label>
             <select
               value={book.collectionId || ""}
               onChange={handleCollectionChange}
-              className="px-3 py-2 rounded-xl border border-[var(--border)] bg-white text-sm input-focus"
+              className="px-3 py-2 rounded-xl border border-(--border) bg-white text-sm input-focus"
             >
               <option value="">No collection</option>
               {collections.map((c) => (
@@ -119,20 +119,20 @@ export default function BookModal({ book, onClose, onUpdateBook, collections }) 
           </div>
 
           <div className="w-full flex items-center justify-center gap-3 mt-3">
-            <label className="text-sm font-medium text-[var(--text-h)]">Volumes</label>
+            <label className="text-sm font-medium text-(--text-h)">Volumes</label>
             <input
               type="number"
               min={1}
               max={100}
               value={totalVolumes}
               onChange={handleVolumesChange}
-              className="w-20 px-3 py-2 rounded-xl border border-[var(--border)] bg-white text-sm text-center input-focus"
+              className="w-20 px-3 py-2 rounded-xl border border-(--border) bg-white text-sm text-center input-focus"
             />
           </div>
 
           {showVolumeButtons && (
             <div className="w-full mt-4">
-              <p className="text-xs text-[var(--text)] mb-2">Click to mark as read</p>
+              <p className="text-xs text-(--text) mb-2">Click to mark as read</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {Array.from({ length: totalVolumes }, (_, i) => {
                   const isRead = book.volumesRead?.[i] || false;
@@ -144,8 +144,8 @@ export default function BookModal({ book, onClose, onUpdateBook, collections }) 
                       className={[
                         "w-9 h-9 rounded-lg text-sm font-semibold border transition-colors",
                         isRead
-                          ? "bg-[var(--accent)] text-white border-[var(--accent)]"
-                          : "bg-[var(--code-bg)] text-[var(--text-h)] border-[var(--border)] hover:border-[var(--accent)]",
+                          ? "bg-(--accent) text-white border-(--accent)"
+                          : "bg-(--code-bg) text-(--text-h) border-(--border) hover:border-(--accent)",
                       ].join(" ")}
                     >
                       {i + 1}

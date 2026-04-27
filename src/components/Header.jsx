@@ -56,11 +56,11 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center shadow">
+          <div className="w-10 h-10 rounded-xl bg-(--accent) text-white flex items-center justify-center shadow">
             <BookLogo className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-h)] leading-tight">
+            <h1 className="text-2xl font-bold text-(--text-h) leading-tight">
               Whispering Pages
             </h1>
           </div>
@@ -72,7 +72,7 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
           {isGG && (
             <button
               onClick={() => setShowAdmin(!showAdmin)}
-              className="px-3 py-2 rounded-full text-sm font-medium bg-[var(--code-bg)] text-[var(--text)] hover:bg-[var(--border)] transition-colors border border-[var(--border)]"
+              className="px-3 py-2 rounded-full text-sm font-medium bg-(--code-bg) text-(--text) hover:bg-(--border) transition-colors border border-(--border)"
             >
               {showAdmin ? "Close" : "Manage"}
             </button>
@@ -82,7 +82,7 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-[var(--accent)] text-white shadow transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-(--accent) text-white shadow transition-all"
             >
               <span>{activeUser}</span>
               <svg
@@ -99,7 +99,7 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 rounded-xl border border-[var(--border)] bg-white dark:bg-[#1f2028] shadow-lg z-50 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-40 rounded-xl border border-(--border) bg-white dark:bg-[#1f2028] shadow-lg z-50 overflow-hidden">
                 {users.map((user) => (
                   <button
                     key={user}
@@ -109,8 +109,8 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
                     }}
                     className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                       user === activeUser
-                        ? "bg-[var(--accent-bg)] text-[var(--accent)] font-medium"
-                        : "text-[var(--text)] hover:bg-[var(--code-bg)]"
+                        ? "bg-(--accent-bg) text-(--accent) font-medium"
+                        : "text-(--text) hover:bg-(--code-bg)"
                     }`}
                   >
                     {user}
@@ -124,9 +124,9 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
 
       {/* Admin Panel */}
       {isGG && showAdmin && (
-        <div className="mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--code-bg)] grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up">
+        <div className="mt-4 p-4 rounded-xl border border-(--border) bg-(--code-bg) grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up">
           <div>
-            <h3 className="text-sm font-semibold text-[var(--text-h)] mb-2">Add User</h3>
+            <h3 className="text-sm font-semibold text-(--text-h) mb-2">Add User</h3>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -134,11 +134,11 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
                 onChange={(e) => setNewUser(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="New user name"
-                className="flex-1 px-3 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow"
+                className="flex-1 px-3 py-2 rounded-lg border border-(--border) bg-white text-sm focus:outline-none focus:ring-2 focus:ring-(--accent) focus:border-transparent transition-shadow"
               />
               <button
                 onClick={handleAdd}
-                className="px-4 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:bg-[#9333ea] transition-colors"
+                className="px-4 py-2 rounded-lg bg-(--accent) text-white text-sm font-medium hover:bg-[#9333ea] transition-colors"
               >
                 Add
               </button>
@@ -147,12 +147,12 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
 
           {users.length > 1 && (
             <div>
-              <h3 className="text-sm font-semibold text-[var(--text-h)] mb-2">Remove User</h3>
+              <h3 className="text-sm font-semibold text-(--text-h) mb-2">Remove User</h3>
               <div className="flex gap-2">
                 <select
                   value={userToDelete}
                   onChange={(e) => setUserToDelete(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg border border-[var(--border)] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-transparent transition-shadow"
+                  className="flex-1 px-3 py-2 rounded-lg border border-(--border) bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-transparent transition-shadow"
                 >
                   {users.map((user) => (
                     <option key={user} value={user}>{user}</option>
