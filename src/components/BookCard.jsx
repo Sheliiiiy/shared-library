@@ -53,14 +53,14 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
           </div>
 
           {/* Actions - appears on hover */}
-          <div className="mt-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="mt-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--accent)] bg-[var(--accent-bg)] hover:bg-[var(--accent-border)] border border-[var(--accent-border)]"
+              className="inline-flex items-center justify-center p-1 rounded-lg text-xs font-medium text-[var(--accent)] bg-[var(--accent-bg)] hover:bg-[var(--accent-border)] border border-[var(--accent-border)]"
               title="View details"
             >
               <svg
-                className="w-3.5 h-3.5"
+                className="w-3 h-3"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -83,19 +83,19 @@ export default function BookCard({ book, onDelete, onUpdateBook }) {
                   setImgError(false);
                 }
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+              className="inline-flex items-center justify-center p-1 rounded-lg text-xs font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200"
               title="Edit picture link"
             >
-              ✏️
+              <span className="flex items-center justify-center w-3 h-3 text-[10px] leading-none">✏️</span>
             </button>
 
             <button
               onClick={() => onDelete(book.id)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200"
+              className="inline-flex items-center justify-center p-1 rounded-lg text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200"
               title="Delete book"
             >
               <svg
-                className="w-3.5 h-3.5"
+                className="w-3 h-3"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
