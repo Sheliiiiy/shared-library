@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import LoginModal from "./LoginModal";
 
 function BookLogo({ className }) {
   return (
@@ -17,11 +18,22 @@ function BookLogo({ className }) {
   );
 }
 
-export default function Header({ users, activeUser, setActiveUser, onAddUser, onRemoveUser }) {
+export default function Header({ 
+  users, 
+  activeUser, 
+  setActiveUser, 
+  onAddUser, 
+  onRemoveUser,
+  userPasswords = {},
+  onVerifyPassword,
+  onSetPassword
+}) {
   const [newUser, setNewUser] = useState("");
   const [userToDelete, setUserToDelete] = useState(users[0] || "");
   const [showAdmin, setShowAdmin] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [pendingUser, setPendingUser] = useState(null);
   const dropdownRef = useRef(null);
   const isGG = activeUser === "GG";
 
@@ -50,6 +62,53 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
     if (!isGG) return;
     onRemoveUser(name);
   };
+
+const handleUserSelect = (user) => {
+    if (user === activeUser) {
+      setDropdownOpen(false);
+      return;
+    }
+    
+    // Check if target user has a password set
+    const targetHasPassword = userPasswords[user] && userPasswords[user].length > 0;
+    
+    // If target has no password, show password setup modal
+    if (!targetHasPassword) {
+      setPendingUser(user);
+      setLoginModalOpen(true);
+      setDropdownOpen(false);
+      return;
+    }
+    
+    // Target user has password - require verification
+    setPendingUser(user);
+    setLoginModalOpen(true);
+    setDropdownOpen(false);
+  };
+
+  const handleLoginSuccess = () => {
+    if (pendingUser) {
+      setActiveUser(pendingUser);
+      setPendingUser(null);
+      setLoginModalOpen(false);
+    }
+  };
+
+  const handleLoginClose = () => {
+    setPendingUser(null);
+    setLoginModalOpen(false);
+  };
+
+  const handleVerify = (password) => {
+    return onVerifyPassword(pendingUser, password);
+  };
+
+  const handleSetPassword = (password) => {
+    onSetPassword(pendingUser, password);
+  };
+
+  const pendingIsAdmin = pendingUser === "GG";
+  const pendingHasPassword = pendingUser && userPasswords[pendingUser] && userPasswords[pendingUser].length > 0;
 
   return (
     <div className="mb-8">
@@ -103,10 +162,7 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
                 {users.map((user) => (
                   <button
                     key={user}
-                    onClick={() => {
-                      setActiveUser(user);
-                      setDropdownOpen(false);
-                    }}
+                    onClick={() => handleUserSelect(user)}
                     className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                       user === activeUser
                         ? "bg-(--accent-bg) text-(--accent) font-medium"
@@ -169,7 +225,18 @@ export default function Header({ users, activeUser, setActiveUser, onAddUser, on
           )}
         </div>
       )}
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={loginModalOpen}
+        user={pendingUser}
+        onClose={handleLoginClose}
+        onSuccess={handleLoginSuccess}
+        onVerify={handleVerify}
+        isAdmin={pendingIsAdmin}
+        hasPassword={pendingHasPassword}
+        onSetPassword={handleSetPassword}
+      />
     </div>
   );
 }
-

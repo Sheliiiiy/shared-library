@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
+import LoginModal from "./components/LoginModal";
 import BookSearch from "./components/BookSearch";
 import BookList from "./components/BookList";
 import BookForm from "./components/AddBookForm";
@@ -31,18 +32,19 @@ const USE_BACKEND = Boolean(import.meta.env.VITE_API_BASE);
 
 export default function App() {
   const [users, setUsers] = useState([]);
+  const [userPasswords, setUserPasswords] = useState({});
   const [books, setBooks] = useState([]);
   const [collections, setCollections] = useState([]);
   const [activeCollection, setActiveCollection] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fromServer = useRef(false);
+const fromServer = useRef(false);
 
-  const [activeUser, setActiveUserState] = useState(() => {
-    const saved = getActiveUser();
-    return saved || "";
-  });
+// Don't auto-load from localStorage - require login on each visit
+  const [activeUser, setActiveUserState] = useState("");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(true);
+  const [initialLoginUser, setInitialLoginUser] = useState(null);
 
   const userBooks = books.filter((b) => b.user === activeUser);
 
@@ -65,6 +67,7 @@ export default function App() {
           const data = await getLibrary();
           if (cancelled) return;
           setUsers(data.users || []);
+          setUserPasswords(data.userPasswords || {});
           setBooks(normalizeBooks(data.books));
           setCollections(data.collections || []);
           setLoading(false);
@@ -74,6 +77,7 @@ export default function App() {
               const d = await getLibrary();
               if (cancelled) return;
               setUsers(d.users || []);
+              setUserPasswords(d.userPasswords || {});
               setBooks(normalizeBooks(d.books));
               setCollections(d.collections || []);
             } catch (e) {
@@ -91,6 +95,7 @@ export default function App() {
         if (cancelled) return;
         fromServer.current = true;
         setUsers(data.users || []);
+        setUserPasswords(data.userPasswords || {});
         setBooks((data.books || []).map((b) => ({
           ...b,
           volumes: b.volumes ?? 1,
@@ -117,16 +122,38 @@ export default function App() {
       fromServer.current = false;
       return;
     }
-    updateLibrary({ users, books, collections }).catch((err) => {
+    updateLibrary({ users, userPasswords, books, collections }).catch((err) => {
       console.error("Failed to sync to Firebase:", err);
       setError("Failed to save changes. Check console for details.");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [users, books, collections]);
+  }, [users, userPasswords, books, collections]);
 
-  const handleSetActiveUser = (user) => {
+const handleSetActiveUser = (user) => {
     setActiveUserState(user);
     setActiveUser(user);
+    setShowLoginPrompt(false);
+  };
+
+  const handleVerifyPassword = (user, password) => {
+    const storedPassword = userPasswords[user];
+    if (!storedPassword || storedPassword.length === 0) {
+      return true; // No password set, allow access
+    }
+    return storedPassword === password;
+  };
+
+const handleSetPassword = async (user, password) => {
+    const newPasswords = { ...userPasswords, [user]: password };
+    setUserPasswords(newPasswords);
+    // Immediately sync to Firestore when password is set
+    if (!USE_BACKEND) {
+      try {
+        await updateLibrary({ users, userPasswords: newPasswords, books, collections });
+      } catch (err) {
+        console.error("Failed to sync password to Firebase:", err);
+      }
+    }
   };
 
   const addUser = async (name) => {
@@ -292,7 +319,7 @@ export default function App() {
     }
   };
 
-  if (loading) {
+if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-3">
@@ -300,6 +327,84 @@ export default function App() {
           <p className="text-sm text-(--text)">Loading library...</p>
         </div>
       </div>
+    );
+  }
+
+// Show initial login selection when no user is selected
+  if (showLoginPrompt && !activeUser) {
+    return (
+      <>
+        <div
+          className="fixed left-0 top-0 h-full bg-cover bg-center opacity-25 hidden lg:block"
+          style={{
+            width: 'max(0px, calc((100vw - 64rem) / 2))',
+            backgroundImage: `url('https://images.stockcake.com/public/e/1/0/e10e5d46-ff9d-45ab-84fc-969d00b3b2c3/magical-library-interior-stockcake.jpg')`,
+          }}
+        />
+        <div
+          className="fixed right-0 top-0 h-full bg-cover bg-center opacity-25 hidden lg:block"
+          style={{
+            width: 'max(0px, calc((100vw - 64rem) / 2))',
+            backgroundImage: `url('https://images.stockcake.com/public/e/1/0/e10e5d46-ff9d-45ab-84fc-969d00b3b2c3/magical-library-interior-stockcake.jpg')`,
+          }}
+        />
+        <div className="relative p-6 max-w-5xl mx-auto bg-(--bg)">
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-(--accent) text-white flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-(--text-h) mb-2">Welcome to Whispering Pages</h2>
+              <p className="text-(--text) mb-6">Select your profile to continue</p>
+<div className="flex flex-col gap-2">
+                {users.map((user) => (
+                  <button
+                    key={user}
+onClick={() => {
+                      // Check if user has a NON-EMPTY password set
+                      const hasPassword = userPasswords.hasOwnProperty(user) && userPasswords[user] && userPasswords[user].length > 0;
+                      
+                      if (!hasPassword) {
+                        // No password set - prompt to set one via modal first
+                        setInitialLoginUser(user);
+                      } else {
+                        // Has password - verify via modal
+                        setInitialLoginUser(user);
+                      }
+                    }}
+                    className="px-6 py-3 rounded-xl bg-(--accent) text-white font-medium hover:bg-[#9333ea] transition-colors shadow"
+                  >
+                    {user}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+{/* Login Modal for initial password entry */}
+        <LoginModal
+          isOpen={!!initialLoginUser}
+          user={initialLoginUser}
+          onClose={() => setInitialLoginUser(null)}
+          onSuccess={() => {
+            if (initialLoginUser) {
+              handleSetActiveUser(initialLoginUser);
+            }
+          }}
+          onVerify={(password) => {
+            // Pass both user and password to verify
+            const stored = userPasswords[initialLoginUser];
+            return stored === password;
+          }}
+          isAdmin={initialLoginUser === "GG"}
+          hasPassword={!!(initialLoginUser && userPasswords[initialLoginUser] && userPasswords[initialLoginUser].length > 0)}
+          onSetPassword={(password) => handleSetPassword(initialLoginUser, password)}
+        />
+      </>
     );
   }
 
@@ -340,6 +445,9 @@ export default function App() {
         setActiveUser={handleSetActiveUser}
         onAddUser={addUser}
         onRemoveUser={removeUser}
+        userPasswords={userPasswords}
+        onVerifyPassword={handleVerifyPassword}
+        onSetPassword={(user, password) => handleSetPassword(user, password)}
       />
 
       {/* Stats bar */}
@@ -411,4 +519,3 @@ export default function App() {
     </>
   );
 }
-

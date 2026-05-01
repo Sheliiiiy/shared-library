@@ -5,6 +5,7 @@ const LIBRARY_DOC = doc(db, "library", "shared");
 
 const defaultData = {
   users: ["GG", "VK"],
+  userPasswords: {},
   books: []
 };
 
